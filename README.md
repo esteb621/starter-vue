@@ -1,4 +1,4 @@
-# starter-vue
+# discordfront
 
 ## Project setup
 ```

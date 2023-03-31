@@ -1,0 +1,256 @@
+<template>
+    <main class=" d-flex justify-content-center align-items-center text-left">
+
+      <div id="login" class="p-4 bg-dark rounded shadow-sm ">
+        <h1 class="pb-2 text-light">
+        <RouterLink to="/"><i :class="iconClass" @mouseover="changeIcon" @mouseout="resetIcon"></i>
+        </RouterLink> {{ title }}</h1>
+        <h2 class="text-center">{{ secondTitle }}</h2>
+        <div class="mt-4">
+          <form class="form-group" method="POST">
+            <div class="row">
+                <div class="col-md-12">
+              <label for="username" class="form-label">Nom d'utilisateur *</label>
+              <input v-model="username" class="form-control" type="username" id="username" name="username" required>
+                </div>
+            </div>
+
+            <!-- Champ mot de passe -->
+            <div class="row">
+                <div class="col-md-12">
+                    <label for="password" class="form-label">Mot de passe *</label>
+                    <input v-model="password" class="form-control" type="password" id="password" name="password" required>
+                </div>
+            </div>
+
+            <!-- Conditions du mot de passe -->
+            <div v-if="pwdChecker">
+              <span class="mb-2 text-light">Votre mot de passe doit contenir au moins:</span>
+              <ul class="list-unstyled text-light">
+                <li :class="{ 'text-success': isPasswordLongEnough() }">
+                    <i v-if="isPasswordLongEnough()" class="bi bi-check"></i> 8 caractères</li>
+                <li :class="{ 'text-success': isPasswordContainDigit() }">
+                    <i v-if="isPasswordContainDigit()" class="bi bi-check"></i> Un chiffre</li>
+                <li :class="{ 'text-success': isPasswordContainSpecialChar() }">
+                    <i v-if="isPasswordContainSpecialChar()" class="bi bi-check"></i> Un caractère spécial</li>
+              </ul>
+            </div>
+            
+            <!-- Champ confirmer mot de passe -->
+            <div v-if="confirmPwd" class="row">
+                <div class="col-md-12">
+                    <label for="retypePassword" class="form-label">Confirmer le mot de passe *</label>
+                    <input :on-change="retypePassword.length>0 && verifyPassword()" v-model="retypePassword" class="form-control" type="password" id="retypePassword" name="password" required="true">
+                </div>
+              
+                <p v-if="showPasswordError" class="text-danger col-md-12">{{ passwordError }}</p>
+            </div>
+
+            <!-- Photo de profil -->
+            <div v-if="insertPhoto" class="row">
+                <div class="col-md-12">
+                    <label for="profile_picture" class="form-label">Photo de profil (optionnel)</label>
+                    <input type="file" accept=".jpg,.jpeg,.gif,.png" id="profile_picture" class="form-control">
+                </div>
+            </div>
+            <button :disabled="showPasswordError || username.length==0 || password.length==0" id="submit" class="btn btn-primary">{{ buttonTitle }}</button>
+          </form>
+
+        </div>
+        <div class="text-capitalize mt-3 text-center">
+          <p class="pl-2" v-html="link"></p>
+        </div>
+      </div>
+    </main>
+  </template>
+  
+
+<script>
+    export default {
+        name: 'LoginForm',
+        data() {
+            return {
+                iconClass:'bi bi-arrow-left-circle',
+                username:'',
+                password: '',
+                retypePassword: '',
+                passwordError:'',
+                showPasswordError:false
+            }
+        },
+        methods:{
+            changeIcon() {
+                this.iconClass = 'bi bi-arrow-left-circle-fill'; // icône remplie lorsqu'on survole la souris
+            },
+            resetIcon() {
+                this.iconClass = 'bi bi-arrow-left-circle'; // icône par défaut lorsque la souris quitte l'icône
+            },
+            isPasswordLongEnough(){
+                return this.password.length>=8;
+            },
+            isPasswordContainSpecialChar() {
+                const specialChars = /[$&+.,:;=?@#|'"<>^*ඞ()%!-]/;
+                return specialChars.test(this.password);
+                },
+            isPasswordContainDigit() {
+                const digit = /\d/;
+                return digit.test(this.password);
+                },
+            verifyPassword(){
+                if(this.password!==this.retypePassword){
+                    this.showPasswordError=true;
+                    this.passwordError='Le mot de passe ne correspond pas avec celui retapé';
+                }
+                else if (this.password==this.retypePassword && !this.isPasswordLongEnough() || !this.isPasswordContainDigit() || !this.isPasswordContainSpecialChar())
+                    {
+                        this.showPasswordError=true;
+                        this.passwordError='Votre mot de passe ne rempli pas toutes les conditions!';
+                    }
+                    else {
+                        this.showPasswordError=false;
+                        this.passwordError='';
+                }
+            }
+        },
+        props: {
+            title: {
+                type: String,
+                required: true
+            },
+            secondTitle: {
+                type: String,
+                required: true
+            },
+            buttonTitle: {
+                type: String,
+                required: true
+            },
+            choixInscription: {
+                type: Boolean
+            },
+            insertPhoto: {
+                type: Boolean
+            },
+            confirmPwd: {
+                type: Boolean
+            },
+            pwdChecker: {
+                type: Boolean
+            },
+            link: {
+                type: String,
+                required: true,
+            },
+        },
+    }
+</script>
+
+<style scoped lang="css">
+
+    main{
+        background-image:url("../assets/login.jpg");
+    }
+
+
+    #login {
+        border-radius: 5px;
+        background-color: #36393f;
+        box-shadow: 2px 2px 10px #5e5e60;
+        height: fit-content;
+    }
+
+    h1 {
+        font-size: 30px;
+        font-weight: 600;
+        line-height: 30px;
+
+    }
+
+    h1,
+    #submit {
+        color: #f3f1f1;
+    }
+
+    h1,
+    h2 {
+        text-align: center;
+        margin: 5px;
+    }
+
+    h2 {
+        font-size: 20px;
+    }
+
+    * {
+        color: #f3f1f1;
+    }
+
+    ul{
+        list-style-type: ' ';
+    }
+
+    label {
+        font-size: 15px;
+        font-weight: 700;
+        margin-bottom: 8px;
+        text-align: left;
+    }
+
+
+    #label-picture::after{
+        content: none;
+    }
+
+    input,
+    #submit {
+        width: 100%;
+        height: 40px;
+        background-color: #40444b;
+        border: 0;
+        border-radius: 3px;
+        margin-bottom: 15px;
+        outline: 0;
+    }
+
+    input[type="file"],
+    input:hover,
+    input:focus {
+        background-color: #40444b;
+        color: #f3f1f1;
+        border: 0;
+    }
+
+    #submit {
+        background-color: #5c6aff;
+        height: 44px;
+        border-radius: 3px;
+        font-size: 18px;
+        transition: all 0.2s ease 0s;
+    }
+
+    #submit:hover {
+        background-color: #4752c4;
+        cursor: pointer;
+    }
+
+    a:hover {
+        text-decoration: none;
+    }
+
+    a {
+        color: #00aff4;
+    }
+
+    p {
+        font-size: 15px;
+    }
+
+    .condition-checked{
+        color: rgb(11, 167, 11);
+    }
+
+    i{
+        font-size: 25px;
+        transition: all 0.2s ease-in-out;
+    }
+</style>
